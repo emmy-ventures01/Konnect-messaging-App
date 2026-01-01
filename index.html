@@ -2,56 +2,18 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>Konnect - Welcome</title>
+  <title>Konnect</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <link rel="stylesheet" href="style.css">
-  <!-- Firebase SDKs -->
-  <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-auth-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-firestore-compat.js"></script>
 </head>
 <body class="center-page">
 
   <div class="profile-container">
-    <img src="https://i.postimg.cc/8kWxrg47/Sleek-Gradient-Blue-Konnect-Logo.png" alt="Konnect Logo" style="width:120px; margin-bottom:20px;">
-    <p style="font-size:12px; color:#555; margin-bottom:20px;">Developed by EmmyVentures</p>
-
-    <h2>Welcome to Konnect</h2>
-    <p>Enter your phone number to continue</p>
-
-    <input type="text" id="country-code" placeholder="+234" class="profile-input" style="width:25%; display:inline-block;">
-    <input type="text" id="phone-number" placeholder="8012345678" class="profile-input" style="width:70%; display:inline-block;">
-
-    <button class="profile-btn" onclick="sendOTP()">Next</button>
+    <img src="https://i.postimg.cc/8kWxrg47/Sleek-Gradient-Blue-Konnect-Logo.png" 
+         alt="Konnect Logo" 
+         style="width:120px; margin-bottom:15px;">
+    <p style="font-size:12px; color:#555;">Developed by EmmyVentures</p>
   </div>
-
-  <script>
-    const firebaseConfig = {
-      apiKey: "AIzaSyAPvMmKigTlnSgi3qu7jwtRiFMAXJtxpHg",
-      authDomain: "konnect-38667.firebaseapp.com",
-      projectId: "konnect-38667",
-      storageBucket: "konnect-38667.appspot.com",
-      messagingSenderId: "687825094848",
-      appId: "1:687825094848:web:7af16061a55d118a3f8525"
-    };
-    firebase.initializeApp(firebaseConfig);
-    const auth = firebase.auth();
-
-    function sendOTP() {
-      const countryCode = document.getElementById('country-code').value.trim();
-      const phone = document.getElementById('phone-number').value.trim();
-      const fullNumber = countryCode + phone;
-
-      if (!phone) {
-        alert("Enter your phone number");
-        return;
-      }
-
-      // For now, we mock verification (replace with Firebase real OTP if billing is enabled)
-      localStorage.setItem('currentNumber', fullNumber);
-      window.location.href = 'verify.html';
-    }
-  </script>
 
 </body>
 </html>
