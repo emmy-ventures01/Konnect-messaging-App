@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Create Passcode – Konnect</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<style>
+body{
+  margin:0;
+  font-family: "Helvetica Neue", Arial, sans-serif;
+  background:#004aad;
+  display:flex;
+  justify-content:center;
+  align-items:center;
+  height:100vh;
+}
+.container{
+  background:#fff;
+  width:90%;
+  max-width:400px;
+  padding:25px;
+  border-radius:10px;
+  text-align:center;
+}
+h2{
+  color:#004aad;
+  margin-bottom:10px;
+}
+.pin-box{
+  display:flex;
+  justify-content:space-between;
+  margin:25px 0;
+}
+.pin-box input{
+  width:55px;
+  height:55px;
+  font-size:24px;
+  text-align:center;
+  border:1px solid #ccc;
+  border-radius:8px;
+}
+button{
+  width:100%;
+  padding:12px;
+  background:#004aad;
+  color:#fff;
+  border:none;
+  border-radius:6px;
+  font-size:16px;
+  cursor:pointer;
+}
+</style>
+</head>
+
+<body>
+
+<div class="container">
+  <h2>Create a 4-digit passcode</h2>
+  <p>For your security</p>
+
+  <div class="pin-box">
+    <input type="password" maxlength="1" oninput="move(this,1)">
+    <input type="password" maxlength="1" oninput="move(this,2)">
+    <input type="password" maxlength="1" oninput="move(this,3)">
+    <input type="password" maxlength="1">
+  </div>
+
+  <button onclick="savePin()">Next</button>
+</div>
+
+<script>
+function move(el,index){
+  if(el.value && el.nextElementSibling){
+    el.nextElementSibling.focus();
+  }
+}
+
+function savePin(){
+  const inputs=document.querySelectorAll('.pin-box input');
+  let pin='';
+  inputs.forEach(i=>pin+=i.value);
+
+  if(pin.length!==4){
+    alert("Enter 4 digits");
+    return;
+  }
+  localStorage.setItem("konnect_pin",pin);
+  window.location.href="verification.html";
+}
+</script>
+
+</body>
+</html>
