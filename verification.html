@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Confirm Passcode – Konnect</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<style>
+body{
+  margin:0;
+  font-family: "Helvetica Neue", Arial, sans-serif;
+  background:#004aad;
+  display:flex;
+  justify-content:center;
+  align-items:center;
+  height:100vh;
+}
+.container{
+  background:#fff;
+  width:90%;
+  max-width:400px;
+  padding:25px;
+  border-radius:10px;
+  text-align:center;
+}
+h2{
+  color:#004aad;
+  margin-bottom:10px;
+}
+.pin-box{
+  display:flex;
+  justify-content:space-between;
+  margin:25px 0;
+}
+.pin-box input{
+  width:55px;
+  height:55px;
+  font-size:24px;
+  text-align:center;
+  border:1px solid #ccc;
+  border-radius:8px;
+}
+button{
+  width:100%;
+  padding:12px;
+  background:#004aad;
+  color:#fff;
+  border:none;
+  border-radius:6px;
+  font-size:16px;
+  cursor:pointer;
+}
+.error{
+  color:red;
+  font-size:14px;
+}
+</style>
+</head>
+
+<body>
+
+<div class="container">
+  <h2>Confirm your passcode</h2>
+
+  <div class="pin-box">
+    <input type="password" maxlength="1" oninput="move(this)">
+    <input type="password" maxlength="1" oninput="move(this)">
+    <input type="password" maxlength="1" oninput="move(this)">
+    <input type="password" maxlength="1">
+  </div>
+
+  <p class="error" id="error"></p>
+
+  <button onclick="verifyPin()">Confirm</button>
+</div>
+
+<script>
+function move(el){
+  if(el.value && el.nextElementSibling){
+    el.nextElementSibling.focus();
+  }
+}
+
+function verifyPin(){
+  const inputs=document.querySelectorAll('.pin-box input');
+  let entered='';
+  inputs.forEach(i=>entered+=i.value);
+
+  const saved=localStorage.getItem("konnect_pin");
+
+  if(entered.length!==4){
+    document.getElementById("error").innerText="Enter 4 digits";
+    return;
+  }
+
+  if(entered!==saved){
+    document.getElementById("error").innerText="Passcodes do not match";
+    return;
+  }
+
+  localStorage.setItem("konnect_verified","true");
+  window.location.href="profile.html";
+}
+</script>
+
+</body>
+</html>
