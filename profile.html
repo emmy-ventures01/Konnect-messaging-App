@@ -2,39 +2,151 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<title>Your Profile</title>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Konnect Profile</title>
 <link rel="stylesheet" href="style.css">
+
+<style>
+body { margin:0; font-family:"Helvetica Neue", Arial, sans-serif; background:#f0f2f5; display:flex; flex-direction:column; height:100vh; }
+
+.header {
+    background:#004aad;
+    color:#fff;
+    padding:14px;
+    display:flex;
+    align-items:center;
+    font-size:18px;
+}
+
+.container {
+    flex:1;
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    padding:20px;
+}
+
+.profile-pic-wrapper {
+    position:relative;
+    margin-bottom:20px;
+}
+
+.profile-pic-wrapper img {
+    width:120px;
+    height:120px;
+    border-radius:50%;
+    border:3px solid #004aad;
+    object-fit:cover;
+}
+
+.profile-pic-wrapper input[type="file"] {
+    display:none;
+}
+
+.change-pic-btn {
+    position:absolute;
+    bottom:0;
+    right:0;
+    background:#004aad;
+    color:#fff;
+    border:none;
+    border-radius:50%;
+    width:36px;
+    height:36px;
+    font-size:20px;
+    cursor:pointer;
+}
+
+.username-input {
+    width:80%;
+    max-width:300px;
+    padding:12px 16px;
+    margin-bottom:20px;
+    border-radius:20px;
+    border:1px solid #ccc;
+    font-size:16px;
+}
+
+.save-btn {
+    padding:12px 20px;
+    background:#004aad;
+    color:#fff;
+    border:none;
+    border-radius:20px;
+    cursor:pointer;
+    font-size:16px;
+}
+
+.save-btn:hover {
+    background:#003380;
+}
+</style>
 </head>
 <body>
 
+<div class="header">
+  Konnect Profile
+</div>
+
 <div class="container">
-  <h2>Profile info</h2>
-  <p>Please provide your name and an optional profile photo</p>
 
-  <input type="file" id="photo" accept="image/*">
-  <input type="text" id="username" placeholder="Your name">
+  <div class="profile-pic-wrapper">
+    <img id="profilePic" src="https://via.placeholder.com/120" alt="Profile Picture">
+    <button class="change-pic-btn" onclick="document.getElementById('picInput').click()">✎</button>
+    <input type="file" id="picInput" accept="image/*">
+  </div>
 
-  <button onclick="saveProfile()">Next</button>
+  <input type="text" id="username" class="username-input" placeholder="Enter your username">
+
+  <button class="save-btn" onclick="saveProfile()">Save Profile</button>
+
 </div>
 
 <script>
-function saveProfile() {
-  const name = document.getElementById("username").value.trim();
-  if (!name) {
-    alert("Please enter your name");
-    return;
+  // Preview profile picture before saving
+  const picInput = document.getElementById('picInput');
+  const profilePic = document.getElementById('profilePic');
+
+  picInput.addEventListener('change', function() {
+    const file = this.files[0];
+    if(file){
+      const reader = new FileReader();
+      reader.onload = function(e){
+        profilePic.src = e.target.result;
+      }
+      reader.readAsDataURL(file);
+    }
+  });
+
+  function saveProfile(){
+    const username = document.getElementById('username').value.trim();
+    const pic = profilePic.src;
+
+    if(!username){
+      alert("Please enter a username");
+      return;
+    }
+
+    // Save to localStorage (can later save to Firebase)
+    localStorage.setItem("username", username);
+    localStorage.setItem("profilePic", pic);
+
+    // Optional: alert before redirect
+    // alert("Profile saved successfully! Redirecting to main page...");
+
+    // Redirect to main.html after saving
+    window.location.href = "main.html";
   }
 
-  localStorage.setItem("konnect_name", name);
+  // Load existing profile if available
+  window.onload = function(){
+    const savedUsername = localStorage.getItem("username");
+    const savedPic = localStorage.getItem("profilePic");
 
-  // Mark user as logged in
-  localStorage.setItem("konnect_logged_in", "true");
-
-  // ✅ FINAL DESTINATION
-  window.location.href = "main.html";
-}
+    if(savedUsername) document.getElementById("username").value = savedUsername;
+    if(savedPic) profilePic.src = savedPic;
+  }
 </script>
 
 </body>
-</html>
+  </html>
