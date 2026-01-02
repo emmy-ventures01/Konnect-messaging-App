@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -9,9 +8,8 @@
 
 <!-- Firebase SDKs -->
 <script type="module">
-  // Import the functions you need from the SDKs
   import { initializeApp } from "https://www.gstatic.com/firebasejs/10.6.1/firebase-app.js";
-  import { getFirestore, collection, addDoc, query, where, onSnapshot, orderBy } from "https://www.gstatic.com/firebasejs/10.6.1/firebase-firestore.js";
+  import { getFirestore, collection, addDoc, query, orderBy, onSnapshot } from "https://www.gstatic.com/firebasejs/10.6.1/firebase-firestore.js";
 
   const firebaseConfig = {
     apiKey: "AIzaSyAPvMmKigTlnSgi3qu7jwtRiFMAXJtxpHg",
@@ -22,16 +20,13 @@
     appId: "1:687825094848:web:7af16061a55d118a3f8525"
   };
 
-  // Initialize Firebase
   const app = initializeApp(firebaseConfig);
   const db = getFirestore(app);
-
   window.db = db; // make accessible globally
 </script>
 
 <style>
-/* Basic Styles */
-body { margin:0; font-family:"Helvetica Neue", Arial, sans-serif; background:#f0f0f0; }
+body { margin:0; font-family:"Helvetica Neue", Arial, sans-serif; background:#f0f2f5; display:flex; flex-direction:column; height:100vh; }
 .header { background:#004aad; color:#fff; padding:14px; display:flex; justify-content:space-between; align-items:center; }
 .header h1 { margin:0; font-size:22px; }
 .header button { font-size:26px; background:none; border:none; color:#fff; cursor:pointer; }
@@ -43,9 +38,9 @@ body { margin:0; font-family:"Helvetica Neue", Arial, sans-serif; background:#f0
 #newContactBox input { width:100%; padding:10px; margin-bottom:8px; border-radius:6px; border:1px solid #ccc; }
 #newContactBox button { width:100%; padding:10px; background:#004aad; color:#fff; border:none; border-radius:6px; }
 
-.chat-list { padding:8px; }
+.chat-list { padding:8px; flex:1; overflow-y:auto; }
 .chat { background:#fff; padding:10px; border-radius:8px; display:flex; align-items:center; margin-bottom:8px; cursor:pointer; }
-.chat img { width:48px; height:48px; border-radius:50%; margin-right:10px; }
+.chat img { width:48px; height:48px; border-radius:50%; margin-right:10px; object-fit:cover; }
 .chat h3 { margin:0; font-size:16px; }
 .chat p { margin:2px 0 0; font-size:13px; color:gray; }
 .empty-message { text-align:center; color:gray; margin-top:50px; font-size:16px; }
@@ -89,11 +84,13 @@ async function addContact() {
     return;
   }
 
-  // Save chat to Firebase
+  const profilePic = localStorage.getItem("profilePic") || "https://via.placeholder.com/48";
+
   try {
     await addDoc(collection(db, "chats"), {
-      members: [number],  // For now, single-member demo
+      members: [number],
       name: name,
+      profilePic: profilePic,
       createdAt: new Date()
     });
   } catch(e) { console.error(e); }
@@ -117,7 +114,7 @@ function renderChats(list) {
     const div = document.createElement("div");
     div.className = "chat";
     div.innerHTML = `
-      <img src="https://via.placeholder.com/48">
+      <img src="${c.profilePic || 'https://via.placeholder.com/48'}">
       <div>
         <h3>${c.name}</h3>
         <p>${c.members.join(", ")}</p>
@@ -125,21 +122,20 @@ function renderChats(list) {
     `;
     div.onclick = () => {
       localStorage.setItem("activeChat", c.id);
-      // Here you would navigate to chat.html to open messages
-      alert(`Opening chat with ${c.name}`);
+      window.location.href = "chat.html"; // go to chat page
     };
     chatList.appendChild(div);
   });
 }
 
-// Load chats from Firebase in real-time
+// Load chats in real-time
 const q = query(collection(db, "chats"), orderBy("createdAt"));
 onSnapshot(q, (snapshot) => {
   chats = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
   renderChats(chats);
 });
 
-// Filter chats on search
+// Filter chats
 function filterChats() {
   const q = document.getElementById("searchInput").value.toLowerCase();
   const filtered = chats.filter(c =>
@@ -150,4 +146,4 @@ function filterChats() {
 </script>
 
 </body>
-</html>
+  </html>
