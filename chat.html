@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>Konnect Chat</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="stylesheet" href="style.css">
+
+<style>
+/* Chat header */
+.chat-header {
+  background: #004aad;
+  color: white;
+  padding: 12px;
+  display: flex;
+  align-items: center;
+}
+
+.chat-header button {
+  background: none;
+  border: none;
+  color: white;
+  font-size: 18px;
+  margin-right: 10px;
+}
+
+/* Messages container with wallpaper and faded overlay */
+.messages {
+  height: calc(100vh - 120px);
+  padding: 10px;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+
+  background-image: url("https://i.postimg.cc/260LPnbY/Generate-a-professional-chat-theme-wallpaper-I-can-use-for-my-app-I-created-colour-blue-with-numero.jpg");
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+
+  background-color: rgba(255,255,255,0.3); /* slightly faded for readability */
+  background-blend-mode: lighten;
+}
+
+/* Message bubbles */
+.me {
+  background: #d9fdd3;
+  padding: 8px;
+  margin: 5px;
+  border-radius: 8px;
+  align-self: flex-end;
+  max-width: 70%;
+}
+
+.them {
+  background: #fff;
+  padding: 8px;
+  margin: 5px;
+  border-radius: 8px;
+  align-self: flex-start;
+  max-width: 70%;
+}
+
+/* Input box */
+.input-box {
+  position: fixed;
+  bottom: 0;
+  width: 100%;
+  display: flex;
+  padding: 10px;
+  background: #fff;
+}
+
+.input-box input {
+  flex: 1;
+  padding: 10px;
+}
+
+.input-box button {
+  padding: 10px;
+}
+</style>
+
+</head>
+<body>
+
+<div class="chat-header">
+  <button onclick="history.back()">←</button>
+  <span id="chatName"></span>
+</div>
+
+<div class="messages" id="messages"></div>
+
+<div class="input-box">
+  <input id="msg" placeholder="Message">
+  <button onclick="send()">Send</button>
+</div>
+
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+import { getFirestore, collection, addDoc, query, orderBy, onSnapshot, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+
+/* 🔑 Your Firebase config */
+const firebaseConfig = {
+  apiKey: "AIzaSyAPvMmKigTlnSgi3qu7jwtRiFMAXJtxpHg",
+  authDomain: "konnect-38667.firebaseapp.com",
+  projectId: "konnect-38667"
+};
+
+const app = initializeApp(firebaseConfig);
+const db = getFirestore(app);
+
+const myNumber = localStorage.getItem("konnect_phone");
+const otherNumber = localStorage.getItem("active_chat");
+document.getElementById("chatName").innerText = otherNumber;
+
+const chatId = [myNumber, otherNumber].sort().join("_");
+
+const messagesDiv = document.getElementById("messages");
+
+/* Listen for real-time messages */
+const q = query(collection(db,"chats",chatId,"messages"), orderBy("time"));
+onSnapshot(q,(snap)=>{
+  messagesDiv.innerHTML="";
+  snap.forEach(doc=>{
+    const m = doc.data();
+    const div = document.createElement("div");
+    div.className = m.sender===myNumber ? "me" : "them";
+    div.innerText = m.text;
+    messagesDiv.appendChild(div);
+    messagesDiv.scrollTop = messagesDiv.scrollHeight;
+  });
+});
+
+/* Send message */
+window.send = async ()=>{
+  const text = document.getElementById("msg").value.trim();
+  if(!text) return;
+  await addDoc(collection(db,"chats",chatId,"messages"),{
+    sender: myNumber,
+    text: text,
+    time: serverTimestamp()
+  });
+  document.getElementById("msg").value="";
+}
+</script>
+
+</body>
+</html>
