@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Konnect</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="stylesheet" href="style.css">
+<style>
+body{margin:0;font-family:"Helvetica Neue", Arial, sans-serif;background:#f0f2f5;}
+.header{background:#004aad;color:#fff;padding:15px;display:flex;align-items:center;justify-content:space-between;}
+.header h1{margin:0;font-size:20px;font-weight:600;}
+#searchBox{display:none;padding:10px;background:#fff;border-bottom:1px solid #ddd;}
+#searchBox input{width:100%;padding:12px;font-size:16px;border:1px solid #ccc;border-radius:6px;margin-bottom:8px;}
+#searchBox button{width:100%;padding:12px;background:#004aad;color:#fff;border:none;border-radius:6px;font-size:16px;}
+.chat{display:flex;padding:12px;background:#fff;border-bottom:1px solid #eee;cursor:pointer;}
+.chat img{width:50px;height:50px;border-radius:50%;object-fit:cover;margin-right:12px;}
+.chat-info{flex:1;}
+.chat-info h3{margin:0;font-size:16px;font-weight:500;}
+.chat-info p{margin:4px 0 0;color:#666;font-size:14px;}
+.bottom-nav{position:fixed;bottom:0;width:100%;display:flex;background:#fff;border-top:1px solid #ddd;}
+.bottom-nav div{flex:1;text-align:center;padding:10px 0;font-size:14px;color:#666;}
+.bottom-nav .active{color:#004aad;font-weight:600;}
+</style>
+</head>
+<body>
+
+<script>
+if(!localStorage.getItem("konnect_profile_done")){
+  window.location.href="index.html";
+}
+</script>
+
+<div class="header">
+  <h1>Konnect</h1>
+  <button onclick="toggleSearch()" style="background:none;border:none;color:#fff;font-size:22px;">＋</button>
+</div>
+
+<div id="searchBox">
+  <input id="searchNumber" placeholder="Enter phone number">
+  <button onclick="startChat()">Start chat</button>
+</div>
+
+<div id="chatList"></div>
+
+<div class="bottom-nav">
+  <div class="active">Chats</div>
+  <div>Status</div>
+  <div>Settings</div>
+</div>
+
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+import { getFirestore, collection, query, orderBy, onSnapshot } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+
+/* 🔑 YOUR FIREBASE CONFIG (the one you sent me) */
+const firebaseConfig = {
+  apiKey: "AIzaSyAPvMmKigTlnSgi3qu7jwtRiFMAXJtxpHg",
+  authDomain: "konnect-38667.firebaseapp.com",
+  projectId: "konnect-38667"
+};
+
+const app = initializeApp(firebaseConfig);
+const db = getFirestore(app);
+
+const myNumber = localStorage.getItem("konnect_phone");
+const chatList = document.getElementById("chatList");
+
+const chatsQuery = query(
+  collection(db,"userChats",myNumber,"chats"),
+  orderBy("lastTime","desc")
+);
+
+onSnapshot(chatsQuery,(snapshot)=>{
+  chatList.innerHTML="";
+  snapshot.forEach(doc=>{
+    const c = doc.data();
+    const div=document.createElement("div");
+    div.className="chat";
+    div.onclick=()=>{
+      localStorage.setItem("active_chat",c.number);
+      window.location.href="chat.html";
+    };
+    div.innerHTML=`
+      <img src="${c.photo}">
+      <div class="chat-info">
+        <h3>${c.name ? c.name : c.number}</h3>
+        <p>${c.lastMessage || ""}</p>
+      </div>
+    `;
+    chatList.appendChild(div);
+  });
+});
+
+window.toggleSearch = ()=>{
+  const box=document.getElementById("searchBox");
+  box.style.display = box.style.display==="block" ? "none" : "block";
+}
+
+window.startChat = ()=>{
+  const number=document.getElementById("searchNumber").value.trim();
+  if(number==="") return alert("Enter phone number");
+  localStorage.setItem("active_chat",number);
+  window.location.href="chat.html";
+}
+</script>
+</body>
+</html>
