@@ -1,0 +1,227 @@
+/* ===== GLOBAL STYLES ===== */
+body {
+    margin: 0;
+    font-family: "Helvetica Neue", Arial, sans-serif;
+    background: #f0f2f5;
+}
+
+/* ===== HEADER ===== */
+.header, .chat-header {
+    background: #004aad; /* deep blue like WhatsApp */
+    color: white;
+    padding: 12px 15px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.header h1, .chat-header span {
+    margin: 0;
+    font-size: 20px;
+    font-weight: 600;
+}
+
+.header button, .chat-header button {
+    background: none;
+    border: none;
+    color: white;
+    font-size: 22px;
+    cursor: pointer;
+}
+
+/* ===== SEARCH BOX ===== */
+#searchBox {
+    display: none;
+    padding: 10px;
+    background: #fff;
+    border-bottom: 1px solid #ddd;
+}
+
+#searchBox input {
+    width: 100%;
+    padding: 12px;
+    font-size: 16px;
+    border: 1px solid #ccc;
+    border-radius: 6px;
+    margin-bottom: 8px;
+}
+
+#searchBox button {
+    width: 100%;
+    padding: 12px;
+    background: #004aad;
+    color: #fff;
+    border: none;
+    border-radius: 6px;
+    font-size: 16px;
+    cursor: pointer;
+}
+
+/* ===== CHAT LIST ===== */
+.chat {
+    display: flex;
+    padding: 12px;
+    background: #fff;
+    border-bottom: 1px solid #eee;
+    cursor: pointer;
+}
+
+.chat img {
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    object-fit: cover;
+    margin-right: 12px;
+}
+
+.chat-info {
+    flex: 1;
+}
+
+.chat-info h3 {
+    margin: 0;
+    font-size: 16px;
+    font-weight: 500;
+}
+
+.chat-info p {
+    margin: 4px 0 0;
+    color: #666;
+    font-size: 14px;
+}
+
+/* ===== MESSAGES AREA ===== */
+.messages {
+    height: calc(100vh - 120px);
+    padding: 10px;
+    display: flex;
+    flex-direction: column;
+    overflow-y: auto;
+
+    /* Slightly faded for wallpaper readability (used in chat.html) */
+    background-color: rgba(255, 255, 255, 0.3);
+    background-blend-mode: lighten;
+}
+
+/* ===== MESSAGE BUBBLES ===== */
+.me {
+    background: #d9fdd3;
+    padding: 8px;
+    margin: 5px;
+    border-radius: 8px;
+    align-self: flex-end;
+    max-width: 70%;
+}
+
+.them {
+    background: #fff;
+    padding: 8px;
+    margin: 5px;
+    border-radius: 8px;
+    align-self: flex-start;
+    max-width: 70%;
+}
+
+/* ===== INPUT BOX ===== */
+.input-box {
+    position: fixed;
+    bottom: 0;
+    width: 100%;
+    display: flex;
+    padding: 10px;
+    background: #fff;
+}
+
+.input-box input {
+    flex: 1;
+    padding: 10px;
+    border: 1px solid #ccc;
+    border-radius: 6px;
+    font-size: 16px;
+}
+
+.input-box button {
+    padding: 10px;
+    background: #004aad;
+    color: #fff;
+    border: none;
+    border-radius: 6px;
+    margin-left: 5px;
+    cursor: pointer;
+}
+
+/* ===== BOTTOM NAVIGATION ===== */
+.bottom-nav {
+    position: fixed;
+    bottom: 0;
+    width: 100%;
+    display: flex;
+    background: #fff;
+    border-top: 1px solid #ddd;
+}
+
+.bottom-nav div {
+    flex: 1;
+    text-align: center;
+    padding: 10px 0;
+    font-size: 14px;
+    color: #666;
+    cursor: pointer;
+}
+
+.bottom-nav .active {
+    color: #004aad;
+    font-weight: 600;
+}
+
+/* ===== PROFILE PAGE ===== */
+.profile-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 30px;
+}
+
+.profile-container img {
+    width: 100px;
+    height: 100px;
+    border-radius: 50%;
+    object-fit: cover;
+    margin-bottom: 20px;
+}
+
+.profile-container input {
+    padding: 12px;
+    border: 1px solid #ccc;
+    border-radius: 6px;
+    width: 80%;
+    margin-bottom: 10px;
+    font-size: 16px;
+}
+
+.profile-container button {
+    padding: 12px;
+    background: #004aad;
+    color: #fff;
+    border: none;
+    border-radius: 6px;
+    font-size: 16px;
+    cursor: pointer;
+}
+
+/* ===== PASSWORD / PIN BOXES ===== */
+.pin-container {
+    display: flex;
+    justify-content: center;
+    margin: 40px 0;
+}
+
+.pin-container input {
+    width: 50px;
+    height: 50px;
+    margin: 0 8px;
+    text-align: center;
+    font-size: 24px;
+    border: 1px solid #ccc;
+    border-radius: 8px;
+}
