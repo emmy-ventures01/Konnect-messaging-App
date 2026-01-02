@@ -1,166 +1,152 @@
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<title>Chat</title>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Konnect</title>
 <link rel="stylesheet" href="style.css">
+
+<!-- Firebase SDKs -->
+<script type="module">
+  // Import the functions you need from the SDKs
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.6.1/firebase-app.js";
+  import { getFirestore, collection, addDoc, query, where, onSnapshot, orderBy } from "https://www.gstatic.com/firebasejs/10.6.1/firebase-firestore.js";
+
+  const firebaseConfig = {
+    apiKey: "AIzaSyAPvMmKigTlnSgi3qu7jwtRiFMAXJtxpHg",
+    authDomain: "konnect-38667.firebaseapp.com",
+    projectId: "konnect-38667",
+    storageBucket: "konnect-38667.appspot.com",
+    messagingSenderId: "687825094848",
+    appId: "1:687825094848:web:7af16061a55d118a3f8525"
+  };
+
+  // Initialize Firebase
+  const app = initializeApp(firebaseConfig);
+  const db = getFirestore(app);
+
+  window.db = db; // make accessible globally
+</script>
+
 <style>
-/* Header */
-.header {
-  display: flex;
-  align-items: center;
-  background-color: #004aad;
-  color: white;
-  padding: 12px;
-  font-family: "Helvetica Neue", Arial, sans-serif;
-}
-.header h1 {
-  margin: 0 0 0 10px;
-  font-size: 20px;
-  font-weight: 600;
-}
-.header button {
-  font-size: 24px;
-  background: none;
-  border: none;
-  color: white;
-  cursor: pointer;
-}
+/* Basic Styles */
+body { margin:0; font-family:"Helvetica Neue", Arial, sans-serif; background:#f0f0f0; }
+.header { background:#004aad; color:#fff; padding:14px; display:flex; justify-content:space-between; align-items:center; }
+.header h1 { margin:0; font-size:22px; }
+.header button { font-size:26px; background:none; border:none; color:#fff; cursor:pointer; }
 
-/* Chat area */
-.messages {
-  background: url('https://i.postimg.cc/260LPnbY/Generate-a-professional-chat-theme-wallpaper-I-can-use-for-my-app-I-created-colour-blue-with-numero.jpg');
-  background-size: cover;
-  opacity: 0.9; /* Slightly faded for readability */
-  flex: 1;
-  padding: 8px;
-  overflow-y: auto;
-  height: calc(100vh - 120px); /* header + input */
-}
+.search-box { padding:10px; background:#fff; }
+.search-box input { width:100%; padding:10px; border-radius:20px; border:1px solid #ccc; outline:none; }
 
-/* Chat bubbles */
-.message {
-  max-width: 70%;
-  padding: 8px 12px;
-  margin: 6px 0;
-  border-radius: 12px;
-  font-size: 14px;
-  line-height: 1.4;
-}
-.sent {
-  background-color: #dcf8c6;
-  margin-left: auto;
-}
-.received {
-  background-color: white;
-  margin-right: auto;
-}
+#newContactBox { display:none; padding:10px; background:#fff; border-bottom:1px solid #ddd; }
+#newContactBox input { width:100%; padding:10px; margin-bottom:8px; border-radius:6px; border:1px solid #ccc; }
+#newContactBox button { width:100%; padding:10px; background:#004aad; color:#fff; border:none; border-radius:6px; }
 
-/* Input area */
-.input-area {
-  display: flex;
-  padding: 10px;
-  background: #eee;
-  border-top: 1px solid #ccc;
-}
-.input-area input {
-  flex: 1;
-  padding: 12px;
-  border-radius: 20px;
-  border: 1px solid #ccc;
-  outline: none;
-}
-.input-area button {
-  padding: 12px 16px;
-  margin-left: 8px;
-  background: #004aad;
-  color: white;
-  border: none;
-  border-radius: 50%;
-  cursor: pointer;
-}
+.chat-list { padding:8px; }
+.chat { background:#fff; padding:10px; border-radius:8px; display:flex; align-items:center; margin-bottom:8px; cursor:pointer; }
+.chat img { width:48px; height:48px; border-radius:50%; margin-right:10px; }
+.chat h3 { margin:0; font-size:16px; }
+.chat p { margin:2px 0 0; font-size:13px; color:gray; }
+.empty-message { text-align:center; color:gray; margin-top:50px; font-size:16px; }
 </style>
+
 </head>
 <body>
 
-<!-- Header -->
 <div class="header">
-  <button onclick="goBack()">←</button>
-  <h1 id="chatTitle">Chat</h1>
+  <h1>Konnect</h1>
+  <button onclick="toggleNewContact()">＋</button>
 </div>
 
-<!-- Messages area -->
-<div id="messages" class="messages"></div>
-
-<!-- Input area -->
-<div class="input-area">
-  <input type="text" id="messageInput" placeholder="Type a message...">
-  <button onclick="sendMessage()">➤</button>
+<div class="search-box">
+  <input type="text" id="searchInput" placeholder="Search or start new chat" oninput="filterChats()">
 </div>
+
+<div id="newContactBox">
+  <input id="newNumber" placeholder="Phone number">
+  <input id="newName" placeholder="Contact name">
+  <button onclick="addContact()">Save Contact</button>
+</div>
+
+<div id="chatList" class="chat-list"></div>
+<div id="emptyMessage" class="empty-message">No chats yet. Tap + to start a chat.</div>
 
 <script type="module">
-import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-import { getFirestore, collection, doc, addDoc, query, orderBy, onSnapshot, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+const db = window.db;
+let chats = [];
 
-/* Firebase config */
-const firebaseConfig = {
-  apiKey: "AIzaSyAPvMmKigTlnSgi3qu7jwtRiFMAXJtxpHg",
-  authDomain: "konnect-38667.firebaseapp.com",
-  projectId: "konnect-38667"
-};
-
-const app = initializeApp(firebaseConfig);
-const db = getFirestore(app);
-
-/* Get logged-in user and active chat */
-const myNumber = localStorage.getItem("konnect_phone");
-const activeChat = localStorage.getItem("active_chat");
-if(!myNumber || !activeChat){
-    alert("No active chat. Returning to main.");
-    window.location.href = "main.html";
+function toggleNewContact() {
+  const box = document.getElementById("newContactBox");
+  box.style.display = box.style.display === "block" ? "none" : "block";
 }
 
-/* Set chat title */
-document.getElementById("chatTitle").textContent = activeChat;
+async function addContact() {
+  const number = document.getElementById("newNumber").value.trim();
+  const name = document.getElementById("newName").value.trim();
+  if (!number || !name) {
+    alert("Enter both name and number");
+    return;
+  }
 
-/* Back button function */
-function goBack() {
-    window.location.href = "main.html";
-}
-
-/* Send message */
-window.sendMessage = async () => {
-    const input = document.getElementById("messageInput");
-    const text = input.value.trim();
-    if(!text) return;
-    input.value = "";
-
-    try {
-        await addDoc(collection(db, "userChats", myNumber, "chats", activeChat, "messages"), {
-            sender: myNumber,
-            text: text,
-            timestamp: serverTimestamp()
-        });
-    } catch(e){
-        console.error("Error sending message:", e);
-    }
-};
-
-/* Listen for messages in real-time */
-const messagesDiv = document.getElementById("messages");
-const q = query(collection(db, "userChats", myNumber, "chats", activeChat, "messages"), orderBy("timestamp"));
-onSnapshot(q, snapshot => {
-    messagesDiv.innerHTML = "";
-    snapshot.forEach(docSnap => {
-        const data = docSnap.data();
-        const div = document.createElement("div");
-        div.className = "message " + (data.sender===myNumber ? "sent" : "received");
-        div.textContent = data.text;
-        messagesDiv.appendChild(div);
+  // Save chat to Firebase
+  try {
+    await addDoc(collection(db, "chats"), {
+      members: [number],  // For now, single-member demo
+      name: name,
+      createdAt: new Date()
     });
-    messagesDiv.scrollTop = messagesDiv.scrollHeight;
+  } catch(e) { console.error(e); }
+
+  document.getElementById("newNumber").value = "";
+  document.getElementById("newName").value = "";
+  document.getElementById("newContactBox").style.display = "none";
+}
+
+function renderChats(list) {
+  const chatList = document.getElementById("chatList");
+  chatList.innerHTML = "";
+  if (list.length === 0) {
+    document.getElementById("emptyMessage").style.display = "block";
+    return;
+  } else {
+    document.getElementById("emptyMessage").style.display = "none";
+  }
+
+  list.forEach(c => {
+    const div = document.createElement("div");
+    div.className = "chat";
+    div.innerHTML = `
+      <img src="https://via.placeholder.com/48">
+      <div>
+        <h3>${c.name}</h3>
+        <p>${c.members.join(", ")}</p>
+      </div>
+    `;
+    div.onclick = () => {
+      localStorage.setItem("activeChat", c.id);
+      // Here you would navigate to chat.html to open messages
+      alert(`Opening chat with ${c.name}`);
+    };
+    chatList.appendChild(div);
+  });
+}
+
+// Load chats from Firebase in real-time
+const q = query(collection(db, "chats"), orderBy("createdAt"));
+onSnapshot(q, (snapshot) => {
+  chats = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+  renderChats(chats);
 });
+
+// Filter chats on search
+function filterChats() {
+  const q = document.getElementById("searchInput").value.toLowerCase();
+  const filtered = chats.filter(c =>
+    c.name.toLowerCase().includes(q) || c.members.join(", ").includes(q)
+  );
+  renderChats(filtered);
+}
 </script>
 
 </body>
